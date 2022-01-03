@@ -3,20 +3,21 @@ const express = require('express');
 const app = express();
 const pool = require('./db/database');
 const port = process.argv[2];
-
+const apiRouter = require('./api');
 
 app.use(express.json())//Nos da acceso al req.body
+app.use('/api', apiRouter);
 
-app.get('/products', (req, res, next) => {
-  const text = 'SELECT * FROM product;'
+// app.get('/products', (req, res, next) => {
+//   const text = 'SELECT * FROM product;'
 
-  pool.query(text, (err, result) => {
-    if (err){
-      return next(err)
-    }
-    res.send(result.rows);
-  }); 
-  });
+//   pool.query(text, (err, result) => {
+//     if (err){
+//       return next(err)
+//     }
+//     res.send(result.rows);
+//   }); 
+//   });
 
 app.post('/products', (req, res, next) => {
 
@@ -79,3 +80,4 @@ app.listen(port, () => {
   })
   
 
+module.exports = app;
