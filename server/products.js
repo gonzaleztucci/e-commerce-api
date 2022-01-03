@@ -1,19 +1,14 @@
 const express = require('express');
 const app = express();
 
-const pool = require('./db/database');
+const pool = require('../db/database');
 
-app.get('/', (req, res, next) => {
-    const text = 'SELECT * FROM product;'
-  
-    pool.query(text, (err, result) => {
-      if (err){
-        return next(err)
-      }
-      res.send(result.rows);
-    })
-    })
-
+//CREATE A NEW PRODUCT
+// Data fields:
+//  - Name: NOT NULL 
+//  - Description: ALLOW NULL 
+//  - Image_link: ALLOW NULL 
+//  - DELETED: NOT NULL, should be set to FALSE when created
 app.post('/', (req, res, next) => {
 
     const text = 'INSERT INTO product (name, description, image_link, deleted) VALUES ($1, $2, $3, $4) RETURNING *;';
@@ -26,8 +21,22 @@ app.post('/', (req, res, next) => {
         res.json(result.rows);
         }
     })
+})
+
+// GET ALL PRODUCTS FROM DB
+app.get('/', (req, res, next) => {
+    const text = 'SELECT * FROM product;'
+  
+    pool.query(text, (err, result) => {
+      if (err){
+        return next(err)
+      }
+      res.send(result.rows);
+    })
     })
 
+
+// GET product by ID
 app.get('/:id', (req, res, next) => {
 
     const text = 'SELECT * FROM product WHERE id = $1';
@@ -43,6 +52,7 @@ app.get('/:id', (req, res, next) => {
     })
 })
 
+//UPDATE PRODUCT
 app.put('/:id', (req, res, next) => {
     const text = 'UPDATE product SET name = $1, description = $2, image_link = $3, deleted = $4 WHERE id = $5 RETURNING *;'
     const {name, description, image_link, deleted} = req.body;
@@ -57,6 +67,7 @@ app.put('/:id', (req, res, next) => {
     })
 })
 
+//DELETE PRODUCT
 app.delete('/:id', (req, res, next) => {
     const text = 'UPDATE product SET deleted = true WHERE id = $1;'
     const id = parseInt(req.params.id);
