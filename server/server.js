@@ -2,8 +2,8 @@ const express = require('express');
 
 const app = express();
 const pool = require('../db/database');
-const port = process.argv[2];
-const apiRouter = require('../api');
+const port = 3000;
+const apiRouter = require('./api');
 
 app.use(express.json())//Nos da acceso al req.body
 app.use('/api', apiRouter);
