@@ -1,6 +1,7 @@
 const { query } = require('express');
 const express = require('express');
 const app = express(); 
+const bcrypt = require('bcrypt');
 
 const pool = require('../db/database');
 
@@ -46,15 +47,17 @@ app.post('/', (req, res, next) => {
         }
         
     },
-    (req, res, next) => {
+    async (req, res, next) => {
         if(!req.body.userId){
             res.send('NO HAY USUARIOS'); //REVISAR
         } else {
             const text = 'INSERT INTO users (id, username, password, address_id, role_id, first_name, last_name, email, telephone_number) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *;';
             const {userId, userName, password, addressId, roleId, firstName, lastName, email, telephoneNumber} = req.body;
             console.log(`SOME BODY: ${JSON.stringify(req.body)}`);
+            const hashedPassword = await bcrypt.hash(password, 10);
+            console.log(hashedPassword);
             if(userName && password && firstName && lastName && email) {
-                pool.query(text, [userId, userName, password, addressId, roleId, firstName, lastName, email, telephoneNumber], (err, result) => {
+                pool.query(text, [userId, userName, hashedPassword, addressId, roleId, firstName, lastName, email, telephoneNumber], (err, result) => {
                     if (err){
                         next(err);
                         
