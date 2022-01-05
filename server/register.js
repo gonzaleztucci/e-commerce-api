@@ -32,14 +32,19 @@ app.post('/', (req, res, next) => {
                 if (err) {
                     next(err);
                 } else {
-                    console.log(results.rows);
+                    const {id} = results.rows[0];
+                    console.log(`EL ID de la dirección: ${id}`)
+                    req.body.addressId = id;
+                    console.log(`ADDRESS: ${JSON.stringify(results.rows)}`);
+                    next();
                 }
             })
         } else {
             console.log('NO hay datos para crear address')
             console.log(streetName, streetNumber, zipcode, city, country, apartment)
+            res.status(500).send('SOME PROBLEMO')
         }
-        next();
+        
     },
     (req, res, next) => {
         if(!req.body.userId){
@@ -47,12 +52,14 @@ app.post('/', (req, res, next) => {
         } else {
             const text = 'INSERT INTO users (id, username, password, address_id, role_id, first_name, last_name, email, telephone_number) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *;';
             const {userId, userName, password, addressId, roleId, firstName, lastName, email, telephoneNumber} = req.body;
+            console.log(`SOME BODY: ${JSON.stringify(req.body)}`);
             if(userName && password && firstName && lastName && email) {
                 pool.query(text, [userId, userName, password, addressId, roleId, firstName, lastName, email, telephoneNumber], (err, result) => {
                     if (err){
                         next(err);
                         
                     } else {
+                        console.log(`USER :${JSON.stringify((result.rows))}`)
                         res.json(result.rows);
                     }
                 })
