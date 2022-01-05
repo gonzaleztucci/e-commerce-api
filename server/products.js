@@ -11,10 +11,10 @@ const pool = require('../db/database');
 //  - DELETED: NOT NULL, should be set to FALSE when created
 app.post('/', (req, res, next) => {
 
-    const text = 'INSERT INTO product (name, description, image_link, deleted) VALUES ($1, $2, $3, $4) RETURNING *;';
-    const {name, description, image_link, deleted} = req.body;
+    const text = 'INSERT INTO product (name, description, image_link, category, deleted) VALUES ($1, $2, $3, $4, $5) RETURNING *;';
+    const {name, description, image_link, category, deleted} = req.body;
     
-    pool.query(text, [name, description, image_link, deleted], (err, result) => {
+    pool.query(text, [name, description, image_link, category, deleted], (err, result) => {
         if (err){
         next(err);
         } else {
@@ -54,11 +54,11 @@ app.get('/:id', (req, res, next) => {
 
 //UPDATE PRODUCT
 app.put('/:id', (req, res, next) => {
-    const text = 'UPDATE product SET name = $1, description = $2, image_link = $3, deleted = $4 WHERE id = $5 RETURNING *;'
-    const {name, description, image_link, deleted} = req.body;
+    const text = 'UPDATE product SET name = $1, description = $2, image_link = $3, category =$4, deleted = $5 WHERE id = $6 RETURNING *;'
+    const {name, description, image_link, category, deleted} = req.body;
     const id = parseInt(req.params.id);
 
-    pool.query(text, [name, description, image_link, deleted, id], (err, result) => {
+    pool.query(text, [name, description, image_link, category, deleted, id], (err, result) => {
         if (err){
             throw err
         } else {
