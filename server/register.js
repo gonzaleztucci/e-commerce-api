@@ -34,7 +34,6 @@ app.post('/', (req, res, next) => {
                     next(err);
                 } else {
                     const {id} = results.rows[0];
-                    console.log(`EL ID de la dirección: ${id}`)
                     req.body.addressId = id;
                     console.log(`ADDRESS: ${JSON.stringify(results.rows)}`);
                     next();
@@ -43,7 +42,7 @@ app.post('/', (req, res, next) => {
         } else {
             console.log('NO hay datos para crear address')
             console.log(streetName, streetNumber, zipcode, city, country, apartment)
-            res.status(500).send('SOME PROBLEMO')
+            next();
         }
         
     },
