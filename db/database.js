@@ -9,10 +9,14 @@ const pool = new Pool({
   database: "e-commerce"
 });
 
+
+
+
 // pool.query('SELECT * FROM users', (err, res) => {
 //     console.log(err, res.rows)
 //     pool.end()
 //   })
+
 
   module.exports = {
     query: (text, params, callback) => {
