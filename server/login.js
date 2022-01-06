@@ -10,7 +10,11 @@ app.get('/', (req, res) => {
 app.post('/password', passport.authenticate('local'), (req, res) => {
     console.log('ENTRO AL POST');
     const { user } = req;
+    console.log(`req object: ${Object.keys(req)}`);
+    console.log(req.session);
+    console.log(req.isAuthenticated);
     res.json(user);
+    
 })
 
 
