@@ -47,8 +47,14 @@ app.get('/:id', (req, res, next) => {
         if(err){
         throw err
         } else {
-        res.json(result.rows);
+            
+            if(result.rows.length > 0){
+                res.json(result.rows);
+            } else {
+                res.status(404).send('Don\'t know what you\'re looking for... :\'\(')
+            }    
         }
+    
     })
 })
 
