@@ -24,12 +24,10 @@ app.post('/', (req, res, next) => {
     })
 })
 
-// GET ALL PRODUCTS FROM DB
+// GET PRODUCTS FROM DB
 app.get('/', (req, res, next) => {
-
     const query = req.query;
-    console.log(query);
-    
+        // Filter by category if given in the request
     if (Object.keys(query).length > 0) {
         const {category} = query;
         const text = 'SELECT * FROM product WHERE category = $1;';
@@ -40,8 +38,8 @@ app.get('/', (req, res, next) => {
                 res.send(result.rows);
             }
         })
-
     } else {
+        //Return all products if no category is given
         const text = 'SELECT * FROM product;'
         pool.query(text, (err, result) => {
             if (err){
@@ -50,32 +48,26 @@ app.get('/', (req, res, next) => {
             res.send(result.rows);
           })
     }
-  
-
     })
 
 
 // GET product by ID
 app.get('/:id', (req, res, next) => {
-
     const text = 'SELECT * FROM product WHERE id = $1';
     const id = parseInt(req.params.id, 10);
 
-
     pool.query(text, [id], (err, result) => {
         if(err){
-        throw err
+        throw err;
         } else {
-            
             if(result.rows.length > 0){
                 res.json(result.rows);
             } else {
                 res.status(404).send('Don\'t know what you\'re looking for... :\'\(');
             }    
         }
-    
-    })
-})
+    });
+});
 
 
 
@@ -87,9 +79,9 @@ app.put('/:id', (req, res, next) => {
 
     pool.query(text, [name, description, image_link, category, deleted, id], (err, result) => {
         if (err){
-            throw err
+            throw err;
         } else {
-            res.json(result.rows)
+            res.json(result.rows);
         }
     })
 })
