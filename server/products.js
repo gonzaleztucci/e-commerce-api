@@ -1,4 +1,5 @@
 const express = require('express');
+const { get } = require('express/lib/response');
 const app = express();
 
 const pool = require('../db/database');
@@ -25,14 +26,32 @@ app.post('/', (req, res, next) => {
 
 // GET ALL PRODUCTS FROM DB
 app.get('/', (req, res, next) => {
-    const text = 'SELECT * FROM product;'
+
+    const query = req.query;
+    console.log(query);
+    
+    if (Object.keys(query).length > 0) {
+        const {category} = query;
+        const text = 'SELECT * FROM product WHERE category = $1;';
+        pool.query(text, [category], (err, result) => {
+            if(err){
+                return next(err);
+            } else {
+                res.send(result.rows);
+            }
+        })
+
+    } else {
+        const text = 'SELECT * FROM product;'
+        pool.query(text, (err, result) => {
+            if (err){
+              return next(err)
+            }
+            res.send(result.rows);
+          })
+    }
   
-    pool.query(text, (err, result) => {
-      if (err){
-        return next(err)
-      }
-      res.send(result.rows);
-    })
+
     })
 
 
@@ -57,6 +76,8 @@ app.get('/:id', (req, res, next) => {
     
     })
 })
+
+
 
 //UPDATE PRODUCT
 app.put('/:id', (req, res, next) => {
