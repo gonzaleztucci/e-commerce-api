@@ -1,5 +1,5 @@
 const express = require('express');
-const { get } = require('express/lib/response');
+// const { get } = require('express/lib/response');
 const app = express();
 
 const pool = require('../db/database');
@@ -75,7 +75,7 @@ app.get('/:id', (req, res, next) => {
 app.put('/:id', (req, res, next) => {
     const text = 'UPDATE product SET name = $1, description = $2, image_link = $3, category =$4, deleted = $5 WHERE id = $6 RETURNING *;'
     const {name, description, image_link, category, deleted} = req.body;
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id, 10);
 
     pool.query(text, [name, description, image_link, category, deleted, id], (err, result) => {
         if (err){
