@@ -123,6 +123,19 @@ app.delete('/:product_id', (req, res)=>{
 })
 
 
+app.post('/checkout', (req, res, next) => {
+    const text = 'SELECT product.id, product.name, cart.quantity, product.price FROM cart JOIN product ON cart.product_id = product.id WHERE cart.user_id = $1;';
+    pool.query(text, [req.body.user_id], (err, result) => {
+        if(err) throw err;
+        if (result.rows.length === 0) {
+            res.send('Cart is empty');
+        } else {
+            req.body.cart = result.rows;
+            next();
+        }
+    })
+}, (req, response, next) => {})
+
 
 
 
