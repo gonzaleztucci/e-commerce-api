@@ -3,14 +3,58 @@ const { parse } = require('pg-protocol');
 const app = express();
 const pool = require('../db/database');
 
+
+app.get('/:user_id', (req, res, next) => {
+    const text = 'SELECT product.id, product.name, cart.quantity FROM cart JOIN product ON cart.product_id = product.id WHERE cart.user_id = $1;'
+    pool.query(text, [parseInt(req.params.user_id, 10)], (err, result) => {
+        if (err){
+            throw err;
+        } else {
+            if(result.rows.length === 0){
+                res.sendStatus(404);
+            } else {
+                res.send(result.rows);
+            }
+            
+        }
+    })
+})
+
 app.post('/', (req, res, next) => {
+    const text = 'SELECT * FROM users WHERE id = $1;';
+    pool.query(text, [req.body.user_id], (err, result) => {
+        if (err) {
+            next(err);
+        } else {
+            if (result.rows.length > 0){
+                next();
+            } else {
+                res.status(500).send('User not fund');
+            }
+        }
+    })
+
+}, (req, res, next) => {
+    const text = 'SELECT id FROM product WHERE id = $1;';
+    pool.query(text, [req.body.product_id], (err, result) => {
+        if (err) {
+            next(err);
+        } else {
+            if (result.rows.length > 0){
+                next();
+            } else {
+                res.status(500).send('Product not fund');
+            }
+        }
+    } );
+} ,(req, res, next) => {
     const text = 'SELECT quantity FROM cart WHERE user_id = $1 AND product_id = $2';
     const user_id = req.body.user_id;
     const product_id = req.body.product_id;
 
     pool.query(text, [user_id, product_id], (err, result) => {
         if (err){
-            throw err;
+            next(err);
         } else {
             if(result.rows.length > 0){
                 const {quantity} = result.rows[0];
@@ -31,7 +75,7 @@ app.post('/', (req, res, next) => {
         console.log(`user_id: ${req.body.user_id}  product_id: ${req.body.product_id}  quantity: ${req.body.quantity}`)
         pool.query(text, [parseInt(req.body.user_id, 10), parseInt(req.body.product_id, 10), parseInt(req.body.quantity, 10), timestamp], (err, result) => {
             if(err) {
-                throw err;
+                next(err);
             } else {
                 res.send(result.rows);
             }
@@ -43,12 +87,15 @@ app.post('/', (req, res, next) => {
         const quantity = req.body.cart_quantity + req.body.quantity;
         pool.query(text, [req.body.user_id, req.body.product_id, quantity , timestamp], (err, result) => {
         if(err) {
-            throw err;
+            next(err);
         } else {
             res.send(result.rows);
         }
         });
     }
+}, (err, req, res, next) => {
+    console.error(`Error: ${err}`);
+    res.status(500).send('Something broke!')
 });
 
 app.put('/', (req, res) => {
