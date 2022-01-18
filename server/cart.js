@@ -1,4 +1,5 @@
 const express = require('express');
+const res = require('express/lib/response');
 const { parse } = require('pg-protocol');
 const app = express();
 const pool = require('../db/database');
@@ -124,6 +125,7 @@ app.delete('/:product_id', (req, res)=>{
 
 
 app.post('/checkout', (req, res, next) => {
+    // SELECT THE ITEMS FROM THE CART IN ORDER TO PROCESS CHECKOUT
     const text = 'SELECT product.id, product.name, cart.quantity, product.price FROM cart JOIN product ON cart.product_id = product.id WHERE cart.user_id = $1;';
     pool.query(text, [req.body.user_id], (err, result) => {
         if(err) throw err;
@@ -134,7 +136,37 @@ app.post('/checkout', (req, res, next) => {
             next();
         }
     })
-}, (req, response, next) => {})
+}, (req, res, next) => {
+    const subtotals = req.body.cart.map(item => {
+        const {price} = item;
+        console.log(price);
+        return parseInt(price,10); 
+    });
+    const total = subtotals.reduce((a, b) => a + b, 0);
+    req.body.total = total;
+    next();
+}, (req, res, next) => {
+    let payment = true;
+    // IF PAYMENT WENT TRHOUGH WE SHOULD CREATE AN ORDER
+    if(payment){
+        console.log('PAYMENT OK');
+        next();
+    } else {
+        res.status(500).send('PAYMENT REJECTED');
+    }
+}, (req, res, next) => {
+    const text = 'INSERT INTO orders (id, user_id, address_id, order_status_id, date) VALUES (nextval(\'order_id_sequence\'),$1, $2, $3, $4);';
+    const timestamp = new Date().toLocaleDateString();
+    pool.query(text, [req.body.user_id, req.body.address_id, req.body.order_status_id, timestamp], (err, result) => {
+        if (err) {
+            throw err;
+        } else {
+            next();
+        } 
+    } )
+}, (req, res, next) => {
+    
+})
 
 
 
