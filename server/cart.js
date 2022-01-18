@@ -1,4 +1,5 @@
 const express = require('express');
+const { parse } = require('pg-protocol');
 const app = express();
 const pool = require('../db/database');
 
@@ -36,22 +37,43 @@ app.post('/', (req, res, next) => {
             }
         });
     } else {
-        console.log('EN EL ELSE!!!!!!!!!!!');
+        
         const text = 'UPDATE cart SET quantity = $3, date_added = $4 WHERE user_id = $1 AND product_id = $2 RETURNING *;';
         const timestamp = new Date().toLocaleDateString();
-        console.log(timestamp);
         const quantity = req.body.cart_quantity + req.body.quantity;
-        console.log(`QUANTITY   ${quantity}`);
-            pool.query(text, [req.body.user_id, req.body.product_id, quantity , timestamp], (err, result) => {
-            if(err) {
-                throw err;
-            } else {
-                res.send(result.rows);
-            }
+        pool.query(text, [req.body.user_id, req.body.product_id, quantity , timestamp], (err, result) => {
+        if(err) {
+            throw err;
+        } else {
+            res.send(result.rows);
+        }
         });
     }
 });
 
+app.put('/', (req, res) => {
+    const timestamp = new Date().toLocaleDateString();
+    const text = 'UPDATE cart SET quantity = $3, date_added = $4 WHERE user_id = $1 AND product_id = $2 RETURNING *;';
+    pool.query(text, [req.body.user_id, req.body.product_id, req.body.quantity, timestamp], (err, result) => {
+        if (err) {
+            throw err;
+        } else {
+            res.send(result.rows);
+        }
+    });
+});
+
+app.delete('/:product_id', (req, res)=>{
+    const productId = parseInt(req.params.product_id, 10);
+    const text = 'DELETE from cart WHERE user_id = $1 AND product_id = $2;'
+    pool.query(text, [req.body.user_id, productId], (err, result) => {
+        if(err) {
+            throw err;
+        } else {
+            res.status(204).send('Item deleted from cart');
+        }
+    })
+})
 
 
 
