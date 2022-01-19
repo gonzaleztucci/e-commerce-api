@@ -155,17 +155,27 @@ app.post('/checkout', (req, res, next) => {
         res.status(500).send('PAYMENT REJECTED');
     }
 }, (req, res, next) => {
-    const text = 'INSERT INTO orders (id, user_id, address_id, order_status_id, date) VALUES (nextval(\'order_id_sequence\'),$1, $2, $3, $4);';
+    const text = 'INSERT INTO orders (id, user_id, address_id, order_status_id, total ,date) VALUES (nextval(\'order_id_sequence\'),$1, $2, $3, $4, $5) RETURNING id;';
     const timestamp = new Date().toLocaleDateString();
-    pool.query(text, [req.body.user_id, req.body.address_id, req.body.order_status_id, timestamp], (err, result) => {
+    pool.query(text, [req.body.user_id, req.body.address_id, req.body.order_status_id, req.body.total ,timestamp], (err, result) => {
         if (err) {
             throw err;
         } else {
+            req.body.order_id = result.rows[0].id;
             next();
         } 
     } )
 }, (req, res, next) => {
-    
+     req.body.cart.forEach(item => {
+         pool.query('INSERT INTO orders_products (order_id, product_id, quantity) VALUES ($1, $2, $3);', [req.body.order_id, item.id, item.quantity], (err, result) => {
+            if (err) {
+                throw err;
+            }
+         } )
+    })
+
+    res.send(req.body);
+
 })
 
 
