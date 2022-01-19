@@ -5,6 +5,7 @@ const login = require('./login')
 const passport = require('../passport');  
 const user = require('./user'); 
 const cart = require('./cart');
+const orders = require('./orders');
 
 const apiRouter = express.Router();
 
@@ -13,5 +14,6 @@ apiRouter.use('/register', register);
 apiRouter.use('/login', login);
 apiRouter.use('/user', user);
 apiRouter.use('/cart', cart);
+apiRouter.use('/orders', orders);
 
 module.exports = apiRouter;
