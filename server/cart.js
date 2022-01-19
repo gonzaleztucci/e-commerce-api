@@ -172,9 +172,17 @@ app.post('/checkout', (req, res, next) => {
                 throw err;
             }
          } )
+
+         pool.query('DELETE FROM cart WHERE user_id = $1 AND product_id = $2;', [req.body.user_id, item.id], (err, result) => {
+            if(err){
+                throw err;
+            } else {
+                console.log(`${item.name} deleted from cart`);
+            }
+         });
     })
 
-    res.send(req.body);
+    res.send('ORDER PLACED');
 
 })
 
