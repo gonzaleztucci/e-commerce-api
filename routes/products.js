@@ -46,7 +46,7 @@ const pool = require('../db/database');
  *                  description: Product's selling price
  *          example: 
  *              id: 8
- *              name: Vans Sk8-Hi
+ *              name: "Vans Sk8-Hi"
  *              description: "Just plain Vans shoes"
  *              image_link: ""
  *              deleted: false
