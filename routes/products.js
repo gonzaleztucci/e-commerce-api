@@ -29,6 +29,12 @@ const pool = require('../db/database');
  *              name:
  *                  type: varchar(200)
  *                  description: Name of the product
+ *              description:
+ *                  type: text
+ *                  description: Product description
+ *              image_link: 
+ *                  type: text
+ *                  description: Link to product image
  *              deleted:
  *                  type: boolean
  *                  description: True if product is deleted from catalog
@@ -41,6 +47,8 @@ const pool = require('../db/database');
  *          example: 
  *              id: 8
  *              name: Vans Sk8-Hi
+ *              description: "Just plain Vans shoes"
+ *              image_link: ""
  *              deleted: false
  *              category: shoes
  *              price: 65
@@ -54,14 +62,39 @@ const pool = require('../db/database');
  *  description: Products managing API
  */
 
+
+/**
+ * @swagger
+ * /api/products:
+ *  post:
+ *      Summary: Creates a new product
+ *      tags: [Products]
+ *      requestBody:
+ *          required: true
+ *          content: 
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#/components/schemas/product'
+ *      responses: 
+ *          200:
+ *              description: Product created successfully
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          $ref: '#/components/schemas/product' 
+ *          500: 
+ *              description: There was a Server error   
+ *          
+ */
 app.post('/', (req, res, next) => {
 
+    console.log(req.body.name);
     const text = 'INSERT INTO product (name, description, price ,image_link, category, deleted) VALUES ($1, $2, $6, $3, $4, $5) RETURNING *;';
     const {name, description, image_link, category, deleted, price} = req.body;
     
     pool.query(text, [name, description, image_link, category, deleted, price], (err, result) => {
         if (err){
-        next(err);
+            res.status(500).send('Something broke!')
         } else {
         res.json(result.rows);
         }
@@ -116,12 +149,11 @@ app.get('/', (req, res, next) => {
  *  get:
  *      summary: Returns the product corresponding to the id given in the URL
  *      parameters:
- *          -   in: path
- *              name: id
- *              schema:
- *                  type: integer
- *              required: true
+ *          -   name: id
+ *              in: path
  *              description: Product id
+ *              type: integer
+ *              required: true
  *      tags: [Products]
  *      responses:
  *          200:
@@ -129,7 +161,9 @@ app.get('/', (req, res, next) => {
  *              content: 
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/product'              
+ *                          $ref: '#/components/schemas/product' 
+ *          404:
+ *              description: Product not found             
  */
 
 app.get('/:id', (req, res, next) => {
@@ -149,31 +183,105 @@ app.get('/:id', (req, res, next) => {
     });
 });
 
-
-
-//UPDATE PRODUCT
+/**
+ * @swagger
+ * /api/products/{id}:
+ *  put:
+ *      summary: Updates a product in the database
+ *      parameters:
+ *          -   name: id
+ *              in: path
+ *              description: Product id
+ *              schema:
+ *                  type: integer
+ *              required: true
+ *      tags: [Products]
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#/components/schemas/product'
+ *      responses:
+ *          200:
+ *              description: Product updated successfully
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          $ref: '#/components/schemas/product'
+ *          500:
+ *              description: Internal server error
+ *          404:
+ *              description: Product not found
+ */
 app.put('/:id', (req, res, next) => {
+    const text = 'SELECT * from product WHERE id = $1;';
+    pool.query(text, [parseInt(req.params.id, 10)], (err, result) => {
+        if(err){
+            res.status(500).send('Something broke.');
+        } else {
+            if(result.rows.length > 0){
+                next();
+            } else {
+                res.status(404).send('Product not found');
+            }
+        }
+    })  
+}, (req, res, next) => {
     const text = 'UPDATE product SET name = $1, description = $2, price = $7 , image_link = $3, category =$4, deleted = $5 WHERE id = $6 RETURNING *;'
     const {name, description, image_link, category, deleted, price} = req.body;
     const id = parseInt(req.params.id, 10);
 
     pool.query(text, [name, description, image_link, category, deleted, id, price], (err, result) => {
         if (err){
-            throw err;
+            console.log(err);
+            res.status(500).send('Something broke.');
         } else {
             res.json(result.rows);
         }
     })
 })
 
+/**
+ * @swagger
+ * /api/products/{id}:
+ *  delete:
+ *      summary: Deletes a product from catalog by setting property Deleted = true
+ *      parameters:
+ *          -   name: id
+ *              in: path
+ *              description: Product id
+ *              schema:
+ *                  type: integer
+ *              required: true
+ *      tags: [Products]
+ *      responses:
+ *          404: 
+ *              description: Product not found
+ *          204:
+ *              description: Product deleted succesfully
+ */
 //DELETE PRODUCT
 app.delete('/:id', (req, res, next) => {
+    const text = 'SELECT * from product WHERE id = $1;';
+    pool.query(text, [parseInt(req.params.id, 10)], (err, result) => {
+        if(err){
+            res.status(500).send('Something broke.');
+        } else {
+            if(result.rows.length > 0){
+                next();
+            } else {
+                res.status(404).send('Product not found');
+            }
+        }
+    })  
+} ,(req, res, next) => {
     const text = 'UPDATE product SET deleted = true WHERE id = $1;'
     const id = parseInt(req.params.id);
 
     pool.query(text, [id], (err, result) => {
         if (err){
-            throw err
+            res.status(500).send('Something broke.');
         } else {
             res.sendStatus(204);
         }
