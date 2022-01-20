@@ -10,6 +10,50 @@ const pool = require('../db/database');
 //  - Description: ALLOW NULL 
 //  - Image_link: ALLOW NULL 
 //  - DELETED: NOT NULL, should be set to FALSE when created
+
+/**
+ * @swagger
+ * components: 
+ *  schemas:
+ *      product:
+ *          type: object
+ *          required: 
+ *              - name
+ *              - deleted
+ *              - category
+ *              - price
+ *          properties:
+ *              id:
+ *                  type: integer
+ *                  description: Auto generated product id.
+ *              name:
+ *                  type: varchar(200)
+ *                  description: Name of the product
+ *              deleted:
+ *                  type: boolean
+ *                  description: True if product is deleted from catalog
+ *              category: 
+ *                  type: varchar(200)
+ *                  description: Indicates the product category
+ *              price: 
+ *                  type: money
+ *                  description: Product's selling price
+ *          example: 
+ *              id: 8
+ *              name: Vans Sk8-Hi
+ *              deleted: false
+ *              category: shoes
+ *              price: 65
+ *  
+ */
+
+/**
+ * @swagger
+ * tags:
+ *  name: Products 
+ *  description: Products managing API
+ */
+
 app.post('/', (req, res, next) => {
 
     const text = 'INSERT INTO product (name, description, price ,image_link, category, deleted) VALUES ($1, $2, $6, $3, $4, $5) RETURNING *;';
@@ -24,7 +68,23 @@ app.post('/', (req, res, next) => {
     })
 })
 
-// GET PRODUCTS FROM DB
+/**
+ * @swagger
+ * /api/products:
+ *  get:
+ *      summary: Returns the list of all the products in the database
+ *      tags: [Products]
+ *      responses:
+ *          200:
+ *              description: The list of products
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: array
+ *                          items:
+ *                              $ref: '#/components/schemas/product'
+ *          
+ *  */
 app.get('/', (req, res, next) => {
     const query = req.query;
         // Filter by category if given in the request
@@ -50,8 +110,28 @@ app.get('/', (req, res, next) => {
     }
     })
 
+/**
+ * @swagger
+ * /api/products/{id}:
+ *  get:
+ *      summary: Returns the product corresponding to the id given in the URL
+ *      parameters:
+ *          -   in: path
+ *              name: id
+ *              schema:
+ *                  type: integer
+ *              required: true
+ *              description: Product id
+ *      tags: [Products]
+ *      responses:
+ *          200:
+ *              description: The product requested
+ *              content: 
+ *                  application/json:
+ *                      schema:
+ *                          $ref: '#/components/schemas/product'              
+ */
 
-// GET product by ID
 app.get('/:id', (req, res, next) => {
     const text = 'SELECT * FROM product WHERE id = $1';
     const id = parseInt(req.params.id, 10);
