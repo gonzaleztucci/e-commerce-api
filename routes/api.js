@@ -9,8 +9,6 @@ const orders = require('./orders');
 
 const apiRouter = express.Router();
 
-
-
 apiRouter.use('/products', products);
 apiRouter.use('/register', register);
 apiRouter.use('/login', login);
