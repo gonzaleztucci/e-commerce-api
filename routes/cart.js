@@ -4,12 +4,67 @@ const { parse } = require('pg-protocol');
 const app = express();
 const pool = require('../db/database');
 
+/**
+ * @swagger
+ * components:
+ *  schemas: 
+ *      cartItem: # Can be referenced as '#/components/schemas/cartItem'
+ *          type: object
+ *          required:
+ *              - user_id
+ *              - product_id
+ *              - quantity
+ *          properties:
+ *              user_id:
+ *                  type: integer
+ *                  description: user id
+ *              product_id:
+ *                  type: integer
+ *                  description: product id
+ *              quantity: 
+ *                  type: integer
+ *                  description: quantity to in the cart
+ *          example:
+ *              user_id: 3
+ *              product_id: 7
+ *              quantity: 10
+ *              
+ */
 
+/**
+ * @swagger
+ * tags:
+ *  name: Cart
+ *  description: Cart managing API
+ */
+
+/**
+ * @swagger
+ * /api/cart/{id}:
+ *  get:
+ *      summary: Returns all items in cart based on user id
+ *      tags: [Cart]
+ *      parameters:
+ *          - $ref: '#/components/parameters/userId'
+ *      responses:
+ *          200:
+ *              description: Returns user´s products in the cart
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: array
+ *                          items:
+ *                              $ref: '#/components/schemas/cartItem'
+ *          404:
+ *              description: No products found
+ *          500: 
+ *              description: Internal server error
+ */
 app.get('/:user_id', (req, res, next) => {
     const text = 'SELECT product.id, product.name, cart.quantity FROM cart JOIN product ON cart.product_id = product.id WHERE cart.user_id = $1;'
     pool.query(text, [parseInt(req.params.user_id, 10)], (err, result) => {
         if (err){
-            throw err;
+            res.status(500).send('Something broke');
         } else {
             if(result.rows.length === 0){
                 res.sendStatus(404);
@@ -21,6 +76,29 @@ app.get('/:user_id', (req, res, next) => {
     })
 })
 
+/**
+ * @swagger
+ * /api/cart:
+ *  post:
+ *      summary: Inserts products into the user cart
+ *      tags: [Cart]
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#/components/schemas/cartItem'
+ *      responses:
+ *          200:
+ *              description: item was added to cart
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          $ref: '#/components/schemas/cartItem'
+ *          500: 
+ *              description: internal server error
+ *      
+ */
 app.post('/', (req, res, next) => {
     const text = 'SELECT * FROM users WHERE id = $1;';
     pool.query(text, [req.body.user_id], (err, result) => {
@@ -99,7 +177,44 @@ app.post('/', (req, res, next) => {
     res.status(500).send('Something broke!')
 });
 
-app.put('/', (req, res) => {
+/**
+ * @swagger
+ * /api/cart/:
+ *  put:
+ *      summary: updates a product in the cart
+ *      tags: [Cart]
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#/components/schemas/cartItem'
+ *      responses:
+ *          200:
+ *              description: cart updated succesfully
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          $ref: '#/components/schemas/cartItem'
+ *          500:
+ *              description: internal server error
+ *          404: 
+ *              description: product is not in user´s cart
+ *      
+ */
+
+app.put('/', (req, res, next) => {
+    const text = 'SELECT * FROM cart WHERE user_id = $1 AND product_id = $2;';
+    pool.query(text, [req.body.user_id, req.body.product_id], (err, result) => {
+        if (err) res.status(500).send('Something broke!');
+        if (result.rows.length > 0) {
+            next();
+        } else {
+            res.status(404).send('Product not in user cart');
+        }
+    })
+
+} ,(req, res) => {
     const timestamp = new Date().toLocaleDateString();
     const text = 'UPDATE cart SET quantity = $3, date_added = $4 WHERE user_id = $1 AND product_id = $2 RETURNING *;';
     pool.query(text, [req.body.user_id, req.body.product_id, req.body.quantity, timestamp], (err, result) => {

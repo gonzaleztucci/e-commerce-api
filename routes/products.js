@@ -15,8 +15,8 @@ const pool = require('../db/database');
  * @swagger
  * components: 
  *  schemas:
- *      product:
- *          type: object
+ *      product: # Can be referenced as '#/components/schemas/product'
+ *          type: object 
  *          required: 
  *              - name
  *              - deleted
@@ -52,6 +52,14 @@ const pool = require('../db/database');
  *              deleted: false
  *              category: shoes
  *              price: 65
+ *  parameters:
+ *      productId: # Can be referenced via '#/components/parameters/productId'
+ *          name: id
+ *          in: path
+ *          description: Product id
+ *          schema:
+ *              type: integer
+ *          required: true
  *  
  */
 
@@ -149,11 +157,7 @@ app.get('/', (req, res, next) => {
  *  get:
  *      summary: Returns the product corresponding to the id given in the URL
  *      parameters:
- *          -   name: id
- *              in: path
- *              description: Product id
- *              type: integer
- *              required: true
+ *          -   $ref: '#/components/parameters/productId'
  *      tags: [Products]
  *      responses:
  *          200:
@@ -189,12 +193,7 @@ app.get('/:id', (req, res, next) => {
  *  put:
  *      summary: Updates a product in the database
  *      parameters:
- *          -   name: id
- *              in: path
- *              description: Product id
- *              schema:
- *                  type: integer
- *              required: true
+ *          -   $ref: '#/components/parameters/productId'
  *      tags: [Products]
  *      requestBody:
  *          required: true
@@ -248,9 +247,7 @@ app.put('/:id', (req, res, next) => {
  *  delete:
  *      summary: Deletes a product from catalog by setting property Deleted = true
  *      parameters:
- *          -   name: id
- *              in: path
- *              description: Product id
+ *          -   $ref: '#/components/parameters/productId'
  *              schema:
  *                  type: integer
  *              required: true
