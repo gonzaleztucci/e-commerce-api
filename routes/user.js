@@ -94,12 +94,37 @@ app.get('/', (req, res) => {
     })
 }); 
 
+/**
+ * @swagger
+ * /api/user/{id}:
+ *  get:
+ *      summary: Returns the user corresponding to the id given in the URL
+ *      tags: [Users]
+ *      parameters:
+ *          -   name: id
+ *              in: path
+ *              description: user id
+ *              type: integer
+ *              required: true
+ *      responses:
+ *          200:    
+ *              description: User requested
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          $ref: '#/components/schemas/user'
+ *          404:
+ *              description: User not found
+ *          500:
+ *              description: Internal server error
+ */
+
 app.get('/:userid', (req, res, next) => {
     const userId = parseInt(req.params.userid, 10);
     const text = `SELECT * FROM users WHERE id = $1`;
     pool.query(text, [userId], (err, result) => {
         if (err) {
-            throw err
+            res.status(500).send('Server error');
         } else {
             req.user = result.rows[0];
             next();
@@ -109,7 +134,7 @@ app.get('/:userid', (req, res, next) => {
 
 app.get('/:userid', (req, res) => {
     if(!req.user){
-        res.status(500).send('User not found');
+        res.status(404).send('User not found');
     } else {
         res.send(req.user);
     }    
