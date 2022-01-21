@@ -1,4 +1,5 @@
 const express = require('express');
+const { send } = require('express/lib/response');
 const res = require('express/lib/response');
 const { parse } = require('pg-protocol');
 const app = express();
@@ -226,12 +227,32 @@ app.put('/', (req, res, next) => {
     });
 });
 
+
+/**
+ * @swagger
+ * /api/cart/{id}:
+ *  delete:
+ *      summary: deletes products from user´s cart
+ *      tags: [Cart]
+ *      parameters:
+ *          -   in: path
+ *              name: id
+ *              description: product id
+ *              required: true
+ *              schema:
+ *                  type: integer
+ *      responses: 
+ *          204:
+ *              description: product deleted succesfully
+ *          500:
+ *              description: internal server error
+ */
 app.delete('/:product_id', (req, res)=>{
     const productId = parseInt(req.params.product_id, 10);
     const text = 'DELETE from cart WHERE user_id = $1 AND product_id = $2;'
     pool.query(text, [req.body.user_id, productId], (err, result) => {
         if(err) {
-            throw err;
+            send.status(500).send('Something broke');
         } else {
             res.status(204).send('Item deleted from cart');
         }
