@@ -2,12 +2,13 @@ const express = require('express');
 const app = express();
 const bcrypt = require('bcrypt');
 const pool = require('../db/database');
+const { send } = require('express/lib/response');
 
 /**
  * @swagger
  * components:
  *  schemas:
- *      user:
+ *      user: # Can be referenced as '#/components/schemas/user'
  *          type: object
  *          required:
  *              -   username
@@ -56,6 +57,15 @@ const pool = require('../db/database');
  *              telephone_number: "+1555666777"
  *              password: "$2b$10$6WUwFrq4cznTgSiB6VJSk.lBgoZmO7P8.7ORIByJuwLLhidMxStxG"
  *              deleted: false
+ *  parameters:
+ *      userId: # Can be referenced via '#/components/parameters/userId'
+ *          name: id
+ *          in: path
+ *          description: user id
+ *          schema:
+ *              type: integer
+ *          required: true
+ *              
  *              
  */
 
@@ -101,11 +111,7 @@ app.get('/', (req, res) => {
  *      summary: Returns the user corresponding to the id given in the URL
  *      tags: [Users]
  *      parameters:
- *          -   name: id
- *              in: path
- *              description: user id
- *              type: integer
- *              required: true
+ *          - $ref: '#/components/parameters/userId'
  *      responses:
  *          200:    
  *              description: User requested
@@ -118,7 +124,6 @@ app.get('/', (req, res) => {
  *          500:
  *              description: Internal server error
  */
-
 app.get('/:userid', (req, res, next) => {
     const userId = parseInt(req.params.userid, 10);
     const text = `SELECT * FROM users WHERE id = $1`;
@@ -140,28 +145,95 @@ app.get('/:userid', (req, res) => {
     }    
 })
 
-app.put('/:userid', async (req, res) => {
+/**
+ * @swagger
+ * /api/user/{id}:
+ *  put:
+ *      summary: Updates a user in the database
+ *      tags: [Users]
+ *      parameters:
+ *          - $ref: '#/components/parameters/userId'
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#/components/schemas/user'
+ *      responses:
+ *          200:
+ *              description: User updated successfully
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          $ref: '#/components/schemas/user'
+ *          404:
+ *              description: User not found
+ *          500:
+ *              description: Internal server error
+ *                      
+ */
+app.put('/:userid', (req, res, next) => {
+    const text = 'SELECT * FROM users WHERE id = $1;';
+    pool.query(text, [parseInt(req.params.userid, 10)], (err, result) => {
+        if (err) res.status(500).send('Something Broke');
+        if (result.rows.length > 0 ){
+            next();
+        } else {
+            res.status(404).send('User not found');
+        }
+    })
+
+} ,async (req, res) => {
     const text = 'UPDATE users SET username = $1, address_id = $2, role_id = $3, first_name = $4, last_name = $5, email = $6, telephone_number = $7, password = $8 WHERE id = $9 RETURNING *';
-    const {username, addressId, roleId, firstName, lastName, email, telephone, password} = req.body;
+    const {username, address_id, role_id, first_name, last_name, email, telephone_number, password} = req.body;
     const hashedPassword = await bcrypt.hash(password, 10)
     const id = parseInt(req.params.userid, 10);
-    pool.query(text,[username, addressId, roleId, firstName, lastName, email, telephone, hashedPassword, id], (err, result) => {
+    pool.query(text,[username, address_id, role_id, first_name, last_name, email, telephone_number, hashedPassword, id], (err, result) => {
         if (err) {
-            throw err
+            res.status(500).send('Something Broke');
         } else {
             res.send(result.rows);
         }        
     })
 })
 
-app.delete('/:userid', (req, res) => {
+/**
+ * @swagger
+ * /api/user/{id}:
+ *  delete:
+ *      summary: Deletes a user from the registry
+ *      tags: [Users]
+ *      parameters:
+ *          - $ref: '#components/parameters/userId'
+ *      responses:
+ *          204:
+ *              description: User deleted successfully
+ *          404:
+ *              description: User not found
+ *          500: 
+ *              description: Internal server error
+ *      
+ */
+
+app.delete('/:userid', (req, res, next) => {
+    const text = 'SELECT * FROM users WHERE id = $1;';
+    const id = parseInt(req.params.userid, 10);
+    pool.query(text, [id], (err, result) => {
+        if (err) {res.status(500).send('Something Broke')};
+        if (result.rows.length > 0 ){
+            next();
+        } else {
+            res.status(404).send('User not found');
+        }
+    })
+} ,(req, res, next) => {
     const text = 'UPDATE users SET deleted = true WHERE id = $1;'
     const id = parseInt(req.params.userid, 10);
     pool.query(text, [id], (err, result) => {
         if (err){
-            throw err;
+            res.status(500).send('Something Broke');
         } else {
-            res.status(204);
+            res.status(204).send('User deleted');
         }
     })
 })
