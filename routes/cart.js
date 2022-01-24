@@ -259,12 +259,39 @@ app.delete('/:product_id', (req, res)=>{
     })
 })
 
-
+/**
+ * @swagger
+ * /api/cart/checkout:
+ *  post: 
+ *      summary: Processes the cart items and creates a new order
+ *      tags:
+ *          - Checkout
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      type: object
+ *                      properties:
+ *                          user_id:
+ *                              type: integer
+ *                          address_id:
+ *                              type: integer
+ *                          order_status_id:
+ *                              type: integer
+ *                      
+ * 
+ *      responses: 
+ *          200: 
+ *              description: order placed successfully
+ *          500:
+ *              description: internal server error
+ */
 app.post('/checkout', (req, res, next) => {
     // SELECT THE ITEMS FROM THE CART IN ORDER TO PROCESS CHECKOUT
-    const text = 'SELECT product.id, product.name, cart.quantity, product.price FROM cart JOIN product ON cart.product_id = product.id WHERE cart.user_id = $1;';
+    const text = 'SELECT product.id, product.name, cart.quantity, product.price, (cart.quantity * product.price) AS subtotal FROM cart JOIN product ON cart.product_id = product.id WHERE cart.user_id = $1;';
     pool.query(text, [req.body.user_id], (err, result) => {
-        if(err) throw err;
+        if(err) res.status(500).send('Internal Server Error');
         if (result.rows.length === 0) {
             res.send('Cart is empty');
         } else {
@@ -274,9 +301,9 @@ app.post('/checkout', (req, res, next) => {
     })
 }, (req, res, next) => {
     const subtotals = req.body.cart.map(item => {
-        const {price} = item;
-        console.log(price);
-        return parseInt(price,10); 
+        const {subtotal} = item;
+        console.log(subtotal);
+        return parseInt(subtotal,10); 
     });
     const total = subtotals.reduce((a, b) => a + b, 0);
     req.body.total = total;
@@ -303,22 +330,23 @@ app.post('/checkout', (req, res, next) => {
     } )
 }, (req, res, next) => {
      req.body.cart.forEach(item => {
-         pool.query('INSERT INTO orders_products (order_id, product_id, quantity) VALUES ($1, $2, $3);', [req.body.order_id, item.id, item.quantity], (err, result) => {
+        pool.query('INSERT INTO orders_products (order_id, product_id, quantity) VALUES ($1, $2, $3);', [req.body.order_id, item.id, item.quantity], (err, result) => {
             if (err) {
-                throw err;
+                res.status(500).send('Something broke');
             }
          } )
 
-         pool.query('DELETE FROM cart WHERE user_id = $1 AND product_id = $2;', [req.body.user_id, item.id], (err, result) => {
+        pool.query('DELETE FROM cart WHERE user_id = $1 AND product_id = $2;', [req.body.user_id, item.id], (err, result) => {
             if(err){
-                throw err;
+                res.status(500).send('Something broke');
             } else {
                 console.log(`${item.name} deleted from cart`);
             }
-         });
+            });
+        
     })
 
-    res.send('ORDER PLACED');
+    res.send(`ORDER ${req.body.order_id} PLACED SUCCESSFULLY`);
 
 })
 
