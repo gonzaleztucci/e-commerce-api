@@ -125,6 +125,17 @@ app.get('/', (req, res) => {
  *              description: Internal server error
  */
 app.get('/:userid', (req, res, next) => {
+    // if user is authenticated in the session, carry on
+    if (req.isAuthenticated()){
+        console.log(req.user);
+        return next();
+    }
+
+        
+
+    // if they aren't redirect them to the home page
+    res.status(500).send('USUARIO NO IDENTIFICADO');
+} ,(req, res, next) => {
     const userId = parseInt(req.params.userid, 10);
     const text = `SELECT * FROM users WHERE id = $1`;
     pool.query(text, [userId], (err, result) => {

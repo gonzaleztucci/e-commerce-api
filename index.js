@@ -5,6 +5,8 @@ const swaggerUI = require('swagger-ui-express');
 const swaggerJsDoc = require('swagger-jsdoc');
 
 
+
+//Swagger configuration options
 const options = {
   definition: {
     openapi: "3.0.0",
@@ -33,7 +35,7 @@ const pool = require('./db/database');
 const PORT = process.env.PORT || 3000;
 const apiRouter = require('./routes/api');
 
-app.use(express.json())//Nos da acceso al req.body
+app.use(express.json());
 app.use(passport.initialize());
 // app.use(passport.session());
 app.use('/api', apiRouter);

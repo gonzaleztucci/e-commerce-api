@@ -1,12 +1,55 @@
 const express = require('express');
 const { get } = require('express/lib/response');
+const { strategies } = require('passport/lib');
 const app = express();
 
 const pool = require('../db/database');
 
-app.get('/', (req, res) => {
-    const text = 'SELECT orders.id as "Order number", op.product_id, product.name, op.quantity, product.price, (op.quantity * product.price) AS subtotal FROM orders JOIN orders_products op ON orders.id = op.order_id JOIN product ON op.product_id = product.id WHERE user_id = $1;'
-    pool.query(text, [req.body.user_id], (err, result) => {
+/**
+ * @swagger
+ * tags:
+ *  name: Orders
+ *  description: Order managing API
+ *      
+ */
+
+
+/**
+ * @swagger
+ * /api/orders/{id}:
+ *  get:
+ *      summary: Returns all orders for the user
+ *      tags: [Orders]
+ *      parameters:
+ *          - $ref: '#/components/parameters/userId'
+ *      responses: 
+ *          200:
+ *              description: All orders for the user
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: array
+ *                          items:
+ *                              type: object
+ *                              properties:
+ *                                  id:
+ *                                      type: integer
+ *                                  product_id:
+ *                                      type: integer
+ *                                  name:
+ *                                      type: varchar(200)
+ *                                  quantity: 
+ *                                      type: integer
+ *                                  price:
+ *                                      type: money
+ *                                  subtotal:
+ *                                      type: money                                                                           
+ *          500:
+ */
+app.get('/:user_id', (req, res) => {
+    const text = 'SELECT orders.id, op.product_id, product.name, op.quantity, product.price, (op.quantity * product.price) AS subtotal FROM orders JOIN orders_products op ON orders.id = op.order_id JOIN product ON op.product_id = product.id WHERE user_id = $1;'
+
+    pool.query(text, [parseInt(req.params.user_id, 10)], (err, result) => {
         if (err){
             throw err;
         } else {
@@ -15,7 +58,44 @@ app.get('/', (req, res) => {
     })
 });
 
-app.get('/:order_id', (req, res) => {
+/**
+ * @swagger
+ * /api/orders/{id}/{order_id}:
+ *  get:
+ *      summary: returns an order detail
+ *      tags: [Orders]
+ *      parameters:
+ *          -   $ref: '#/components/parameters/userId'
+ *          -   name: order_id
+ *              in: path
+ *              required: true
+ *              schema:
+ *                  type: integer
+ *      responses: 
+ *          200:
+ *              description: order details returned
+ *              content:
+ *                  application/json: 
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              product_id:
+ *                                  type: integer
+ *                              name:
+ *                                  type: varchar(200)
+ *                              quantity:
+ *                                  type: integer
+ *                              price:
+ *                                  type: money
+ *                              subtotal:
+ *                                  type: money
+ *          404:
+ *              description: order not found
+ *          500:
+ *              description: I^nternal server error
+ */
+
+app.get('/:user_id/:order_id', (req, res) => {
     const text = 'SELECT op.product_id, product.name, op.quantity, product.price, (op.quantity * product.price) AS subtotal FROM orders JOIN orders_products op ON orders.id = op.order_id JOIN product ON op.product_id = product.id WHERE order_id = $1;'
     pool.query(text, [parseInt(req.params.order_id, 10)], (err, result) => {
         if (err){

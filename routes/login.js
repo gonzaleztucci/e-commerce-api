@@ -15,6 +15,7 @@ const app = express();
 
 app.post('/', passport.authenticate('local'), (req, res) => {
     const { user } = req;
+    console.log(JSON.stringify(req.user));
     res.json(user);
 
     //COULD REDIRECT TO USER PROFILE ONCE LOGIN OK
