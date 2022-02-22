@@ -70,7 +70,10 @@ app.get('/:user_id', (req, res, next) => {
             if(result.rows.length === 0){
                 res.sendStatus(404);
             } else {
-                res.send(result.rows);
+                res.json({
+                    status: 'success',
+                    results: result.rows.length,
+                    data: result.rows});
             }
             
         }
@@ -169,7 +172,10 @@ app.post('/', (req, res, next) => {
         if(err) {
             next(err);
         } else {
-            res.send(result.rows);
+            res.json({
+                status: 'success',
+                data: result.rows
+            });
         }
         });
     }
@@ -222,7 +228,10 @@ app.put('/', (req, res, next) => {
         if (err) {
             throw err;
         } else {
-            res.send(result.rows);
+            res.json({
+                status: 'success',
+                data: result.rows
+            });
         }
     });
 });
@@ -346,7 +355,12 @@ app.post('/checkout', (req, res, next) => {
         
     })
 
-    res.send(`ORDER ${req.body.order_id} PLACED SUCCESSFULLY`);
+    // res.send(`ORDER ${req.body.order_id} PLACED SUCCESSFULLY`);
+    res.json({
+        status: 'success',
+        order_id: req.body.order_id,
+        items: req.body.cart
+    })
 
 })
 
