@@ -135,7 +135,10 @@ app.post('/', (req, res, next) => {
                     if (err){
                         next(err);
                     } else {
-                        res.json(result.rows);
+                        res.json({
+                            status: 'success',
+                            data: result.rows
+                        });
                     }
                 })
 
