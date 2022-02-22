@@ -99,7 +99,11 @@ app.get('/', (req, res) => {
         if(err){
             return next(err);
         } else {
-            res.send(result.rows);
+            res.json({
+                status: 'success',
+                results: result.rows.length,
+                data: result.rows
+            });
         }        
     })
 }); 
@@ -124,18 +128,21 @@ app.get('/', (req, res) => {
  *          500:
  *              description: Internal server error
  */
-app.get('/:userid', (req, res, next) => {
-    // if user is authenticated in the session, carry on
-    if (req.isAuthenticated()){
-        console.log(req.user);
-        return next();
-    }
+app.get('/:userid', 
+
+// (req, res, next) => {
+//     // if user is authenticated in the session, carry on
+//     if (req.isAuthenticated()){
+//         console.log(req.user);
+//         return next();
+//     }
 
         
 
-    // if they aren't redirect them to the home page
-    res.status(500).send('USUARIO NO IDENTIFICADO');
-} ,(req, res, next) => {
+//     // if they aren't redirect them to the home page
+//     res.status(500).send('USUARIO NO IDENTIFICADO');
+// } ,
+(req, res, next) => {
     const userId = parseInt(req.params.userid, 10);
     const text = `SELECT * FROM users WHERE id = $1`;
     pool.query(text, [userId], (err, result) => {
@@ -152,7 +159,10 @@ app.get('/:userid', (req, res) => {
     if(!req.user){
         res.status(404).send('User not found');
     } else {
-        res.send(req.user);
+        res.json({
+            status: 'success',
+            data: req.user
+        });
     }    
 })
 
@@ -203,7 +213,10 @@ app.put('/:userid', (req, res, next) => {
         if (err) {
             res.status(500).send('Something Broke');
         } else {
-            res.send(result.rows);
+            res.json({
+                status: 'success',
+                data: result.rows
+            });
         }        
     })
 })
