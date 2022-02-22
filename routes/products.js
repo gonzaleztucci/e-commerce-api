@@ -104,7 +104,11 @@ app.post('/', (req, res, next) => {
         if (err){
             res.status(500).send('Something broke!')
         } else {
-        res.json(result.rows);
+        res.json({
+            status: 'success',
+            results: result.rows.length,
+            data: result.rows
+        });
         }
     })
 })
@@ -146,7 +150,11 @@ app.get('/', (req, res, next) => {
             if (err){
               return next(err)
             }
-            res.send(result.rows);
+            res.json({
+                status: 'success',
+                results: result.rows.length,
+                data: result.rows
+            });
           })
     }
     })
@@ -179,7 +187,10 @@ app.get('/:id', (req, res, next) => {
         throw err;
         } else {
             if(result.rows.length > 0){
-                res.json(result.rows);
+                res.json({
+                    status: 'sucess',
+                    data: result.rows
+                });
             } else {
                 res.status(404).send('Don\'t know what you\'re looking for... :\'\(');
             }    
@@ -236,7 +247,10 @@ app.put('/:id', (req, res, next) => {
             console.log(err);
             res.status(500).send('Something broke.');
         } else {
-            res.json(result.rows);
+            res.json({
+                status: 'success',
+                data: result.rows
+            });
         }
     })
 })
