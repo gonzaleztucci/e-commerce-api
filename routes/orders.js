@@ -53,7 +53,11 @@ app.get('/:user_id', (req, res) => {
         if (err){
             throw err;
         } else {
-            res.send(result.rows);
+            res.json({
+                status: 'success',
+                results: result.rows.length,
+                data: result.rows
+             });
         }
     })
 });
@@ -100,8 +104,13 @@ app.get('/:user_id/:order_id', (req, res) => {
     pool.query(text, [parseInt(req.params.order_id, 10)], (err, result) => {
         if (err){
             throw err;
+        } else if (result.rows.length > 0) {
+            res.json({
+                status: 'success',
+                data: result.rows
+            });
         } else {
-            res.send(result.rows);
+            res.status(404).send('Order not found');
         }
     })
 })
