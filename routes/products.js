@@ -102,7 +102,9 @@ app.post('/', (req, res, next) => {
     
     pool.query(text, [name, description, image_link, category, deleted, price], (err, result) => {
         if (err){
-            res.status(500).send('Something broke!')
+            res.status(500).json({
+                status: 'error',
+                error: err});
         } else {
         res.json({
             status: 'success',
