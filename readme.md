@@ -24,11 +24,14 @@ The next step in this project will be to develop the Front End for the e-commerc
 
 ## How to install the project localy:
 
-- Clone or download this repository from `https://github.com/gonzaleztucci/e-commerce-api`
-- Run `npm install` in order to get all required dependencies intalled
-- Run `npm start` in order to get the server running.
-- Once you see the message `Example app listening at http://localhost:{yourSelectedPort}` you can start making requests to the API
-- Go to `http://localhost:3000/api-docs/` and you can send requests for all routes.
+In order to run this project locally you must have [Node](https://nodejs.org/en/download/) and [PostgreSQL](https://www.postgresql.org/download/) installed
+
+1 Clone or download this repository from `https://github.com/gonzaleztucci/e-commerce-api`
+2 Run `npm install` in order to get all required dependencies intalled
+3 Run `npm start` in order to get the server running.
+4 Add the database to your PostgreSQL by running the queries on the `\db\database.sql` file
+5 Once you see the message `Example app listening at http://localhost:{yourSelectedPort}` you can start making requests to the API
+6 Go to `http://localhost:3000/api-docs/` and you can send requests for all routes.
 
 ## License and Copyright
 
