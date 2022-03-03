@@ -30,7 +30,10 @@ const options = {
           description: "Entity not found"
         }
       },
-      
+      schemas: {
+        
+      }
+
     }
   },
   apis: ["./routes/*.js"]

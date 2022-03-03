@@ -130,6 +130,10 @@ app.post('/', (req, res, next) => {
  *                          type: array
  *                          items:
  *                              $ref: '#/components/schemas/product'
+ *          404:
+ *              $ref: '#components/responses/NotFound'
+ *          500:
+ *              $ref: '#components/responses/ServerError'
  *          
  *  */
 app.get('/', (req, res, next) => {
@@ -177,7 +181,9 @@ app.get('/', (req, res, next) => {
  *                      schema:
  *                          $ref: '#/components/schemas/product' 
  *          404:
- *              description: Product not found             
+ *              $ref: '#components/responses/NotFound'
+ *          500:
+ *              $ref: '#components/responses/ServerError'            
  */
 
 app.get('/:id', (req, res, next) => {
@@ -222,9 +228,9 @@ app.get('/:id', (req, res, next) => {
  *                      schema:
  *                          $ref: '#/components/schemas/product'
  *          500:
- *              description: Internal server error
+ *              $ref: '#components/responses/ServerError'
  *          404:
- *              description: Product not found
+ *              $ref: '#components/responses/NotFound'
  */
 app.put('/:id', (req, res, next) => {
     const text = 'SELECT * from product WHERE id = $1;';
@@ -269,8 +275,10 @@ app.put('/:id', (req, res, next) => {
  *              required: true
  *      tags: [Products]
  *      responses:
+ *          500:
+ *              $ref: '#components/responses/ServerError'
  *          404: 
- *              description: Product not found
+ *              $ref: '#components/responses/NotFound'
  *          204:
  *              description: Product deleted succesfully
  */
