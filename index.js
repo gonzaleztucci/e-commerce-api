@@ -17,9 +17,21 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:3000"
+        url: "http://localhost:3000",
+        description: "Development Server"
       }
-    ]
+    ],
+    components: {
+      responses: {
+        ServerError: {
+          description: "Internal Server Error"
+        },
+        NotFound: {
+          description: "Entity not found"
+        }
+      },
+      
+    }
   },
   apis: ["./routes/*.js"]
 };
@@ -30,6 +42,11 @@ const specs = swaggerJsDoc(options);
 const app = express();
 
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(specs));
+
+app.get('/swagger.json', (req, res) => {
+  res.setHeader('Content-type', 'application/json');
+  res.send(specs);
+})
 
 const pool = require('./db/database');
 const PORT = process.env.PORT || 3000;

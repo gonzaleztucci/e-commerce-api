@@ -91,7 +91,7 @@ const pool = require('../db/database');
  *                      schema:
  *                          $ref: '#/components/schemas/product' 
  *          500: 
- *              description: There was a Server error   
+ *              $ref: '#components/responses/ServerError'   
  *          
  */
 app.post('/', (req, res, next) => {
