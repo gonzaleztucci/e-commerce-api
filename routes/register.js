@@ -81,7 +81,7 @@ const pool = require('../db/database');
  *                      schema: 
  *                          $ref: '#/components/schemas/user'
  *          500: 
- *              description: There was a Server error
+ *              $ref: '#components/responses/ServerError'
  */
 
 

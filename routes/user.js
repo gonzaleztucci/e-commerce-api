@@ -11,6 +11,7 @@ const { send } = require('express/lib/response');
  *      user: # Can be referenced as '#/components/schemas/user'
  *          type: object
  *          required:
+ *              -   id
  *              -   username
  *              -   email
  *              -   password
@@ -91,7 +92,10 @@ const { send } = require('express/lib/response');
  *                          type: array
  *                          items:
  *                              $ref: '#/components/schemas/user'
- * 
+ *          404:
+ *              $ref: '#components/responses/NotFound'
+ *          505:
+ *              $ref: '#components/responses/ServerError'
  */
 app.get('/', (req, res) => {
     const text = 'SELECT * FROM users'
@@ -124,9 +128,9 @@ app.get('/', (req, res) => {
  *                      schema:
  *                          $ref: '#/components/schemas/user'
  *          404:
- *              description: User not found
+ *              $ref: '#components/responses/NotFound'
  *          500:
- *              description: Internal server error
+ *              $ref: '#components/responses/ServerError'
  */
 app.get('/:userid', 
 
@@ -153,9 +157,8 @@ app.get('/:userid',
             next();
         }
     })
-});
-
-app.get('/:userid', (req, res) => {
+}, 
+(req, res) => {
     if(!req.user){
         res.status(404).send('User not found');
     } else {
@@ -164,7 +167,8 @@ app.get('/:userid', (req, res) => {
             data: req.user
         });
     }    
-})
+});
+
 
 /**
  * @swagger
@@ -188,9 +192,9 @@ app.get('/:userid', (req, res) => {
  *                      schema:
  *                          $ref: '#/components/schemas/user'
  *          404:
- *              description: User not found
+ *              $ref: '#components/responses/NotFound'
  *          500:
- *              description: Internal server error
+ *              $ref: '#components/responses/ServerError'
  *                      
  */
 app.put('/:userid', (req, res, next) => {
@@ -234,9 +238,9 @@ app.put('/:userid', (req, res, next) => {
  *          204:
  *              description: User deleted successfully
  *          404:
- *              description: User not found
+ *              $ref: '#components/responses/NotFound'
  *          500: 
- *              description: Internal server error
+ *              $ref: '#components/responses/NotFound'
  *      
  */
 
