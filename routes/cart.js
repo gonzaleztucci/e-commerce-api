@@ -53,9 +53,14 @@ const pool = require('../db/database');
  *              content:
  *                  application/json:
  *                      schema:
- *                          type: array
- *                          items:
- *                              $ref: '#/components/schemas/cartItem'
+ *                          type: object
+ *                          properties:
+ *                               status:
+ *                                  type: string
+ *                               results:
+ *                                  type: integer
+ *                               data:
+ *                                  $ref: '#/components/schemas/cartItem'
  *          404:
  *              $ref: '#components/responses/NotFound'
  *          500: 
@@ -98,7 +103,12 @@ app.get('/:user_id', (req, res, next) => {
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/cartItem'
+ *                          type: object
+ *                          properties:
+ *                               status: 
+ *                                  type: string
+ *                               data:
+ *                                  $ref: '#/components/schemas/cartItem'
  *          500: 
  *              $ref: '#components/responses/ServerError'
  *      
@@ -202,7 +212,12 @@ app.post('/', (req, res, next) => {
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/cartItem'
+ *                         type: object
+ *                         properties:
+ *                             status: 
+ *                                type: string
+ *                             data:
+ *                               $ref: '#/components/schemas/cartItem'
  *          500:
  *              $ref: '#components/responses/ServerError'
  *          404: 
@@ -288,11 +303,23 @@ app.delete('/:product_id', (req, res)=>{
  *                              type: integer
  *                          order_status_id:
  *                              type: integer
- *                      
- * 
  *      responses: 
  *          200: 
  *              description: order placed successfully
+ *              content:
+ *                 application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              status:
+ *                                 type: string
+ *                              order_id:
+ *                                 type: integer
+ *                              items: 
+ *                                 type: array
+ *                                 items: 
+ *                                    $ref: '#/components/schemas/cartItem'
+ *                      
  *          500:
  *              $ref: '#components/responses/ServerError'
  */
