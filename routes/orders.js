@@ -30,20 +30,7 @@ const pool = require('../db/database');
  *                      schema:
  *                          type: array
  *                          items:
- *                              type: object
- *                              properties:
- *                                  id:
- *                                      type: integer
- *                                  product_id:
- *                                      type: integer
- *                                  name:
- *                                      type: varchar(200)
- *                                  quantity: 
- *                                      type: integer
- *                                  price:
- *                                      type: money
- *                                  subtotal:
- *                                      type: money                                                                           
+ *                               $ref: '#components/schemas/order'                                                                      
  *          500:
  *              $ref: '#components/responses/ServerError'
  */

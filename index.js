@@ -31,7 +31,29 @@ const options = {
         }
       },
       schemas: {
-        
+        order: {
+          type: "object",
+          properties: {
+            id: {
+              type: "integer"
+            },
+            product_id: {
+              type: "integer"
+            },
+            name: {
+              type: "string"
+            },
+            quantity: {
+              type: "integer"
+            },
+            price: {
+              type: "money"
+            },
+            subtotal: {
+              type: "money"
+            }
+          } 
+        }
       }
 
     }
