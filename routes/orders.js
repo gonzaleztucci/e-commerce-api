@@ -45,6 +45,7 @@ const pool = require('../db/database');
  *                                  subtotal:
  *                                      type: money                                                                           
  *          500:
+ *              $ref: '#components/responses/ServerError'
  */
 app.get('/:user_id', (req, res) => {
     const text = 'SELECT orders.id, op.product_id, product.name, op.quantity, product.price, (op.quantity * product.price) AS subtotal FROM orders JOIN orders_products op ON orders.id = op.order_id JOIN product ON op.product_id = product.id WHERE user_id = $1;'
@@ -94,9 +95,9 @@ app.get('/:user_id', (req, res) => {
  *                              subtotal:
  *                                  type: money
  *          404:
- *              description: order not found
+ *              $ref: '#components/responses/NotFound'
  *          500:
- *              description: I^nternal server error
+ *              $ref: '#components/responses/ServerError'
  */
 
 app.get('/:user_id/:order_id', (req, res) => {

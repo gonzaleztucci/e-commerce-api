@@ -57,9 +57,9 @@ const pool = require('../db/database');
  *                          items:
  *                              $ref: '#/components/schemas/cartItem'
  *          404:
- *              description: No products found
+ *              $ref: '#components/responses/NotFound'
  *          500: 
- *              description: Internal server error
+ *              $ref: '#components/responses/ServerError'
  */
 app.get('/:user_id', (req, res, next) => {
     const text = 'SELECT product.id, product.name, cart.quantity FROM cart JOIN product ON cart.product_id = product.id WHERE cart.user_id = $1;'
@@ -100,7 +100,7 @@ app.get('/:user_id', (req, res, next) => {
  *                      schema:
  *                          $ref: '#/components/schemas/cartItem'
  *          500: 
- *              description: internal server error
+ *              $ref: '#components/responses/ServerError'
  *      
  */
 app.post('/', (req, res, next) => {
@@ -204,9 +204,9 @@ app.post('/', (req, res, next) => {
  *                      schema:
  *                          $ref: '#/components/schemas/cartItem'
  *          500:
- *              description: internal server error
+ *              $ref: '#components/responses/ServerError'
  *          404: 
- *              description: product is not in user´s cart
+ *              $ref: '#components/responses/NotFound'
  *      
  */
 
@@ -254,7 +254,7 @@ app.put('/', (req, res, next) => {
  *          204:
  *              description: product deleted succesfully
  *          500:
- *              description: internal server error
+ *              $ref: '#components/responses/ServerError'
  */
 app.delete('/:product_id', (req, res)=>{
     const productId = parseInt(req.params.product_id, 10);
@@ -294,7 +294,7 @@ app.delete('/:product_id', (req, res)=>{
  *          200: 
  *              description: order placed successfully
  *          500:
- *              description: internal server error
+ *              $ref: '#components/responses/ServerError'
  */
 app.post('/checkout', (req, res, next) => {
     // SELECT THE ITEMS FROM THE CART IN ORDER TO PROCESS CHECKOUT
@@ -355,7 +355,6 @@ app.post('/checkout', (req, res, next) => {
         
     })
 
-    // res.send(`ORDER ${req.body.order_id} PLACED SUCCESSFULLY`);
     res.json({
         status: 'success',
         order_id: req.body.order_id,
