@@ -28,9 +28,17 @@ const pool = require('../db/database');
  *              content:
  *                  application/json:
  *                      schema:
- *                          type: array
- *                          items:
- *                               $ref: '#components/schemas/order'                                                                      
+ *                          type: object
+ *                          properties:
+ *                               status:
+ *                                     type: string
+ *                               results:
+ *                                     type: integer
+ *                               data:
+ *                                     type: array
+ *                                     items:
+ *                                       $ref: '#components/schemas/order'
+ *                                                                                                       
  *          500:
  *              $ref: '#components/responses/ServerError'
  */
@@ -71,16 +79,12 @@ app.get('/:user_id', (req, res) => {
  *                      schema:
  *                          type: object
  *                          properties:
- *                              product_id:
- *                                  type: integer
- *                              name:
- *                                  type: varchar(200)
- *                              quantity:
- *                                  type: integer
- *                              price:
- *                                  type: money
- *                              subtotal:
- *                                  type: money
+ *                              status:
+ *                                 type: string
+ *                              data:
+ *                                 type: object
+ *                                 schema:
+ *                                    $ref: '#components/schemas/order'
  *          404:
  *              $ref: '#components/responses/NotFound'
  *          500:

@@ -54,8 +54,7 @@ const options = {
             }
           } 
         }
-      }
-
+      }      
     }
   },
   apis: ["./routes/*.js"]
