@@ -47,10 +47,10 @@ const options = {
               type: "integer"
             },
             price: {
-              type: "money"
+              type: "number"
             },
             subtotal: {
-              type: "money"
+              type: "number"
             }
           } 
         }

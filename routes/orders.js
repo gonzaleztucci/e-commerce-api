@@ -82,8 +82,6 @@ app.get('/:user_id', (req, res) => {
  *                              status:
  *                                 type: string
  *                              data:
- *                                 type: object
- *                                 schema:
  *                                    $ref: '#components/schemas/order'
  *          404:
  *              $ref: '#components/responses/NotFound'
