@@ -11,18 +11,9 @@ const pool = new Pool({
 });
 
 
-
-
-// pool.query('SELECT * FROM users', (err, res) => {
-//     console.log(err, res.rows)
-//     pool.end()
-//   })
-
-
   module.exports = {
     query: (text, params, callback) => {
       return pool.query(text, params, callback)
     },
   }
 
-  // module.exports = pool;
